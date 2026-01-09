@@ -4,11 +4,11 @@ tg.expand();
 
 let selectedProductId = null;
 let selectedProductTitle = '';
-let selectedQuantity = 1;
+let selectedQuantity = null;
 
-/* ===== Загрузка каталога из Google Sheets ===== */
+/* ===== Загрузка каталога ===== */
 fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/products')
-  .then(response => response.json())
+  .then(r => r.json())
   .then(products => {
     const catalog = document.getElementById('catalog');
 
@@ -34,7 +34,7 @@ fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/pro
           <input
             type="number"
             min="1"
-            value="1"
+            placeholder="Введите количество"
             style="
               width:100%;
               padding:10px;
@@ -58,19 +58,29 @@ fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/pro
     });
   });
 
-/* ===== Обновление количества ===== */
+/* ===== Обновление количества (БЕЗ автоподстановки) ===== */
 function updateQuantity(input, productId, title) {
-  const qty = parseInt(input.value, 10);
-
-  if (isNaN(qty) || qty < 1) {
-    input.value = 1;
-    selectedQuantity = 1;
-  } else {
-    selectedQuantity = qty;
-  }
+  const value = input.value.trim();
 
   selectedProductId = productId;
   selectedProductTitle = title;
+
+  // Пользователь очищает поле — это нормально
+  if (value === '') {
+    selectedQuantity = null;
+    tg.MainButton.hide();
+    return;
+  }
+
+  const qty = parseInt(value, 10);
+
+  if (isNaN(qty) || qty < 1) {
+    selectedQuantity = null;
+    tg.MainButton.hide();
+    return;
+  }
+
+  selectedQuantity = qty;
 
   tg.MainButton.setText(
     `Подтвердить бронирование (${selectedQuantity} шт)`
@@ -83,6 +93,15 @@ function selectProduct(productId, title) {
   selectedProductId = productId;
   selectedProductTitle = title;
 
+  if (!selectedQuantity) {
+    tg.showPopup({
+      title: 'Введите количество',
+      message: 'Пожалуйста, укажите количество товара',
+      buttons: [{ type: 'ok' }]
+    });
+    return;
+  }
+
   tg.MainButton.setText(
     `Подтвердить бронирование (${selectedQuantity} шт)`
   );
@@ -94,10 +113,10 @@ function book(productId) {
   const user = tg.initDataUnsafe.user;
 
   const data = new URLSearchParams();
-  data.append('entry.457040264', productId);          // product_id
-  data.append('entry.467357019', user.id);            // user_id
-  data.append('entry.1706370580', user.username);     // username
-  data.append('entry.1239404864', selectedQuantity); // quantity
+  data.append('entry.457040264', productId);
+  data.append('entry.467357019', user.id);
+  data.append('entry.1706370580', user.username);
+  data.append('entry.1239404864', selectedQuantity);
 
   fetch('https://docs.google.com/forms/d/e/1FAIpQLSefsUyWJjpJo_sCW775Fb6Ba0tl8fUbB1DyfDIBRp3RVJY9lA/formResponse', {
     method: 'POST',
@@ -114,10 +133,12 @@ function book(productId) {
 
 /* ===== MainButton ===== */
 tg.MainButton.onClick(() => {
-  if (!selectedProductId) return;
+  if (!selectedProductId || !selectedQuantity) return;
 
   book(selectedProductId);
 
   tg.MainButton.hide();
   selectedProductId = null;
-  selectedProdu
+  selectedProductTitle = '';
+  selectedQuantity = null;
+});
