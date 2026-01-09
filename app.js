@@ -42,7 +42,7 @@ function selectProduct(productId, title) {
   });
 }
 
-/* ===== Отправка бронирования ===== */
+/* ===== Отправка бронирования (БЕЗ уведомлений) ===== */
 function book(productId) {
   const user = tg.initDataUnsafe.user;
 
@@ -51,40 +51,16 @@ function book(productId) {
   data.append('entry.467357019', user.id);          // user_id
   data.append('entry.1706370580', user.username);   // username
 
-  // Google Form
   fetch('https://docs.google.com/forms/d/e/1FAIpQLSefsUyWJjpJo_sCW775Fb6Ba0tl8fUbB1DyfDIBRp3RVJY9lA/formResponse', {
     method: 'POST',
     mode: 'no-cors',
     body: data
   });
 
-  // 🔔 УВЕДОМЛЕНИЕ АДМИНУ (КЛЮЧЕВАЯ СТРОКА)
-  notifyAdmin(selectedProductTitle, user);
-
   tg.showPopup({
     title: 'Готово',
     message: 'Бронь отправлена',
     buttons: [{ type: 'ok' }]
-  });
-}
-
-/* ===== Уведомление админу ===== */
-function notifyAdmin(productTitle, user) {
-  const text =
-    '📦 Новая бронь\n' +
-    'Товар: ' + productTitle + '\n' +
-    'Пользователь: @' + (user.username || 'без username') + '\n' +
-    'ID: ' + user.id;
-
-  fetch('https://api.telegram.org/bot8244786429:AAEeSIu8W-z0HoeTAN09e-R3QBSAQWDDp5E/sendMessage', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      chat_id: 400820942,
-      text: text
-    })
   });
 }
 
@@ -98,3 +74,4 @@ tg.MainButton.onClick(() => {
   selectedProductId = null;
   selectedProductTitle = '';
 });
+
