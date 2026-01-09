@@ -32,11 +32,29 @@ fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/pro
 function selectProduct(productId, title) {
   selectedProductId = productId;
   selectedProductTitle = title;
-  selectedQuantity = 1;
 
-  updateMainButton();
+  const input = prompt(
+    `Введите количество для товара:\n${title}`,
+    '1'
+  );
 
-  showQuantityPopup();
+  const qty = parseInt(input, 10);
+
+  if (!qty || qty < 1) {
+    tg.showPopup({
+      title: 'Ошибка',
+      message: 'Введите корректное количество (1 или больше)',
+      buttons: [{ type: 'ok' }]
+    });
+    return;
+  }
+
+  selectedQuantity = qty;
+
+  tg.MainButton.setText(
+    `Подтвердить бронирование (${selectedQuantity} шт)`
+  );
+  tg.MainButton.show();
 }
 
 /* ===== Popup выбора количества ===== */
