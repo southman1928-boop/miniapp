@@ -29,20 +29,13 @@ fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/pro
         ${
           hasPrice
             ? `
-        <label style="font-size:12px;margin-bottom:8px;display:block;">
+        <label class="qty-label">
           Количество
           <input
             type="number"
             min="1"
             placeholder="Введите количество"
-            style="
-              width:100%;
-              padding:10px;
-              margin-top:4px;
-              border-radius:8px;
-              border:1px solid #ccc;
-              font-size:14px;
-            "
+            class="qty-input"
             oninput="updateQuantity(this, ${p.id}, '${p.title}')"
           >
         </label>
@@ -58,14 +51,13 @@ fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/pro
     });
   });
 
-/* ===== Обновление количества (БЕЗ автоподстановки) ===== */
+/* ===== Обновление количества ===== */
 function updateQuantity(input, productId, title) {
   const value = input.value.trim();
 
   selectedProductId = productId;
   selectedProductTitle = title;
 
-  // Пользователь очищает поле — это нормально
   if (value === '') {
     selectedQuantity = null;
     tg.MainButton.hide();
