@@ -1,6 +1,8 @@
 const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
+let selectedProductId = null;
+let selectedProductTitle = '';
 
 fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/products')
   .then(response => response.json())
@@ -15,12 +17,28 @@ fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/pro
         <h3>${p.title}</h3>
         <img src="${p.image_url}" width="200">
         <p>${p.description}</p>
-        <button onclick="book(${p.id})">Забронировать</button>
+        <button onclick="selectProduct(${p.id}, '${p.title}')">
+  Забронировать
+</button>
+
         <hr>
       `;
       catalog.appendChild(item);
     });
   });
+function selectProduct(productId, title) {
+  selectedProductId = productId;
+  selectedProductTitle = title;
+
+  tg.MainButton.setText('Подтвердить бронирование');
+  tg.MainButton.show();
+
+  tg.showPopup({
+    title: 'Выбран товар',
+    message: title,
+    buttons: [{ type: 'ok' }]
+  });
+}
 
 function book(productId) {
   const user = tg.initDataUnsafe.user;
@@ -42,3 +60,32 @@ function book(productId) {
     buttons: [{ type: 'ok' }]
   });
 }
+function notifyAdmin(productTitle, user) {
+  const text =
+    '📦 Новая бронь\n' +
+    'Товар: ' + productTitle + '\n' +
+    'Пользователь: @' + (user.username || 'без username') + '\n' +
+    'ID: ' + user.id;
+
+  fetch('https://api.telegram.org/8244786429:AAEeSIu8W-z0HoeTAN09e-R3QBSAQWDDp5E/sendMessage', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      chat_id: 400820942
+,
+      text: text
+    })
+  });
+}
+tg.MainButton.onClick(() => {
+  if (!selectedProductId) return;
+
+  book(selectedProductId);
+
+  tg.MainButton.hide();
+  selectedProductId = null;
+  selectedProductTitle = '';
+});
+
