@@ -15,12 +15,20 @@ fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/pro
     products.forEach(p => {
       if (p.active !== 'yes') return;
 
+      const hasPrice = p.price && Number(p.price) > 0;
+
       const item = document.createElement('div');
       item.innerHTML = `
         <h3>${p.title}</h3>
         <img src="${p.image_url}" width="200">
-        <p>${p.description}</p>
 
+        <p class="price">
+          ${hasPrice ? p.price + ' ₽' : 'Цена по запросу'}
+        </p>
+
+        ${
+          hasPrice
+            ? `
         <label style="font-size:12px;margin-bottom:8px;display:block;">
           Количество
           <input
@@ -42,6 +50,9 @@ fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/pro
         <button onclick="selectProduct(${p.id}, '${p.title}')">
           Забронировать
         </button>
+        `
+            : ''
+        }
       `;
       catalog.appendChild(item);
     });
@@ -109,6 +120,4 @@ tg.MainButton.onClick(() => {
 
   tg.MainButton.hide();
   selectedProductId = null;
-  selectedProductTitle = '';
-  selectedQuantity = 1;
-});
+  selectedProdu
