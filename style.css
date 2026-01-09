@@ -1,42 +1,70 @@
-const tg = window.Telegram.WebApp;
-tg.ready();
-tg.expand();
+/* Общие стили */
+body {
+  margin: 0;
+  padding: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f5f5f7;
+  color: #111;
+}
 
-fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/products')
-  .then(response => response.json())
-  .then(products => {
-    const catalog = document.getElementById('catalog');
+/* Заголовок */
+h1 {
+  font-size: 20px;
+  margin-bottom: 16px;
+}
 
-    products.forEach(p => {
-      if (p.active !== 'yes') return;
+/* Контейнер каталога */
+#catalog {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
 
-      const item = document.createElement('div');
-      item.innerHTML = `
-        <h3>${p.title}</h3>
-        <img src="${p.image_url}" width="200">
-        <p>${p.description}</p>
-        <button onclick="book(${p.id})">Забронировать</button>
-        <hr>
-      `;
-      catalog.appendChild(item);
-    });
-  });
+/* Карточка товара */
+#catalog > div {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+}
 
-function book(productId) {
-  const user = tg.initDataUnsafe.user;
+/* Картинка */
+#catalog img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
 
-  const data = new URLSearchParams();
-  data.append('entry.457040264', productId);      // product_id
-  data.append('entry.467357019', user.id);        // user_id
-  data.append('entry.1706370580', user.username);  // username
+/* Название */
+#catalog h3 {
+  font-size: 14px;
+  margin: 0 0 6px;
+}
 
-  fetch('https://docs.google.com/forms/d/e/1FAIpQLSefsUyWJjpJo_sCW775Fb6Ba0tl8fUbB1DyfDIBRp3RVJY9lA/formResponse', {
-    method: 'POST',
-    mode: 'no-cors',
-    body: data
-  });
+/* Описание */
+#catalog p {
+  font-size: 12px;
+  color: #555;
+  flex-grow: 1;
+  margin: 0 0 10px;
+}
 
-  tg.showPopup({
-    title: 'Готово',
-    message: 'Бронь отправлена',
-    buttons: [{ type: 'ok' }]
+/* Кнопка */
+#catalog button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  background: #2a7bf6;
+  color: #fff;
+  cursor: pointer;
+}
+
+#catalog button:active {
+  opacity: 0.8;
+}
