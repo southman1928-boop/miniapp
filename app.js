@@ -28,44 +28,44 @@ fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/pro
     });
   });
 
-/* ===== Выбор товара + количества ===== */
+/* ===== Выбор товара + количества (кросс-платформенно) ===== */
 function selectProduct(productId, title) {
   selectedProductId = productId;
   selectedProductTitle = title;
 
-  const input = prompt(
-    `Введите количество для товара:\n${title}`,
-    '1'
-  );
+  const isMobile = tg.platform === 'ios' || tg.platform === 'android';
 
-  // Пользователь нажал "Отмена"
-  if (input === null) {
+  // 📱 МОБИЛЬНЫЕ — ввод цифрами
+  if (isMobile) {
+    const input = prompt(
+      `Введите количество для товара:\n${title}`,
+      '1'
+    );
+
+    if (input === null) return;
+
+    const qty = input.trim() === '' ? 1 : parseInt(input, 10);
+
+    if (isNaN(qty) || qty < 1) {
+      tg.showPopup({
+        title: 'Ошибка',
+        message: 'Введите корректное количество (1 или больше)',
+        buttons: [{ type: 'ok' }]
+      });
+      return;
+    }
+
+    selectedQuantity = qty;
+    updateMainButton();
     return;
   }
 
-  // Пусто = 1
-  const qty = input.trim() === '' ? 1 : parseInt(input, 10);
-
-  // Некорректный ввод
-  if (isNaN(qty) || qty < 1) {
-    tg.showPopup({
-      title: 'Ошибка',
-      message: 'Введите корректное количество (1 или больше)',
-      buttons: [{ type: 'ok' }]
-    });
-    return;
-  }
-
-  selectedQuantity = qty;
-
-  tg.MainButton.setText(
-    `Подтвердить бронирование (${selectedQuantity} шт)`
-  );
-  tg.MainButton.show();
+  // 💻 ПК — popup с + / −
+  selectedQuantity = 1;
+  showQuantityPopup();
 }
 
-
-/* ===== Popup выбора количества ===== */
+/* ===== Popup выбора количества (для ПК) ===== */
 function showQuantityPopup() {
   tg.showPopup({
     title: selectedProductTitle,
@@ -76,13 +76,8 @@ function showQuantityPopup() {
       { type: 'ok', text: 'Готово' }
     ]
   }, (btn) => {
-    if (btn === 'plus') {
-      selectedQuantity++;
-    }
-
-    if (btn === 'minus' && selectedQuantity > 1) {
-      selectedQuantity--;
-    }
+    if (btn === 'plus') selectedQuantity++;
+    if (btn === 'minus' && selectedQuantity > 1) selectedQuantity--;
 
     updateMainButton();
 
@@ -105,10 +100,10 @@ function book(productId) {
   const user = tg.initDataUnsafe.user;
 
   const data = new URLSearchParams();
-  data.append('entry.457040264', productId);        // product_id
-  data.append('entry.467357019', user.id);          // user_id
-  data.append('entry.1706370580', user.username);   // username
-  data.append('entry.1239404864', selectedQuantity); // quantity ← ЗАМЕНИ entry
+  data.append('entry.457040264', productId);          // product_id
+  data.append('entry.467357019', user.id);            // user_id
+  data.append('entry.1706370580', user.username);     // username
+  data.append('entry.1239404864', selectedQuantity); // quantity
 
   fetch('https://docs.google.com/forms/d/e/1FAIpQLSefsUyWJjpJo_sCW775Fb6Ba0tl8fUbB1DyfDIBRp3RVJY9lA/formResponse', {
     method: 'POST',
