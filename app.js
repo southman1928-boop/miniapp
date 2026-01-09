@@ -4,6 +4,7 @@ tg.expand();
 
 let selectedProductId = null;
 let selectedProductTitle = '';
+let selectedQuantity = 1;
 
 /* ===== Загрузка каталога из Google Sheets ===== */
 fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/products')
