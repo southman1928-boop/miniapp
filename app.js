@@ -20,6 +20,25 @@ fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/pro
         <h3>${p.title}</h3>
         <img src="${p.image_url}" width="200">
         <p>${p.description}</p>
+
+        <label style="font-size:12px;margin-bottom:8px;display:block;">
+          Количество
+          <input
+            type="number"
+            min="1"
+            value="1"
+            style="
+              width:100%;
+              padding:10px;
+              margin-top:4px;
+              border-radius:8px;
+              border:1px solid #ccc;
+              font-size:14px;
+            "
+            oninput="updateQuantity(this, ${p.id}, '${p.title}')"
+          >
+        </label>
+
         <button onclick="selectProduct(${p.id}, '${p.title}')">
           Забронировать
         </button>
@@ -28,67 +47,31 @@ fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/pro
     });
   });
 
-/* ===== Выбор товара + количества (кросс-платформенно) ===== */
+/* ===== Обновление количества ===== */
+function updateQuantity(input, productId, title) {
+  const qty = parseInt(input.value, 10);
+
+  if (isNaN(qty) || qty < 1) {
+    input.value = 1;
+    selectedQuantity = 1;
+  } else {
+    selectedQuantity = qty;
+  }
+
+  selectedProductId = productId;
+  selectedProductTitle = title;
+
+  tg.MainButton.setText(
+    `Подтвердить бронирование (${selectedQuantity} шт)`
+  );
+  tg.MainButton.show();
+}
+
+/* ===== Нажатие "Забронировать" ===== */
 function selectProduct(productId, title) {
   selectedProductId = productId;
   selectedProductTitle = title;
 
-  const isMobile = tg.platform === 'ios' || tg.platform === 'android';
-
-  // 📱 МОБИЛЬНЫЕ — ввод цифрами
-  if (isMobile) {
-    const input = prompt(
-      `Введите количество для товара:\n${title}`,
-      '1'
-    );
-
-    if (input === null) return;
-
-    const qty = input.trim() === '' ? 1 : parseInt(input, 10);
-
-    if (isNaN(qty) || qty < 1) {
-      tg.showPopup({
-        title: 'Ошибка',
-        message: 'Введите корректное количество (1 или больше)',
-        buttons: [{ type: 'ok' }]
-      });
-      return;
-    }
-
-    selectedQuantity = qty;
-    updateMainButton();
-    return;
-  }
-
-  // 💻 ПК — popup с + / −
-  selectedQuantity = 1;
-  showQuantityPopup();
-}
-
-/* ===== Popup выбора количества (для ПК) ===== */
-function showQuantityPopup() {
-  tg.showPopup({
-    title: selectedProductTitle,
-    message: `Количество: ${selectedQuantity}`,
-    buttons: [
-      { id: 'minus', type: 'default', text: '−' },
-      { id: 'plus', type: 'default', text: '+' },
-      { type: 'ok', text: 'Готово' }
-    ]
-  }, (btn) => {
-    if (btn === 'plus') selectedQuantity++;
-    if (btn === 'minus' && selectedQuantity > 1) selectedQuantity--;
-
-    updateMainButton();
-
-    if (btn !== 'ok') {
-      showQuantityPopup();
-    }
-  });
-}
-
-/* ===== Обновление MainButton ===== */
-function updateMainButton() {
   tg.MainButton.setText(
     `Подтвердить бронирование (${selectedQuantity} шт)`
   );
@@ -118,7 +101,7 @@ function book(productId) {
   });
 }
 
-/* ===== Подтверждение через MainButton ===== */
+/* ===== MainButton ===== */
 tg.MainButton.onClick(() => {
   if (!selectedProductId) return;
 
