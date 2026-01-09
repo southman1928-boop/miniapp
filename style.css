@@ -24,18 +24,18 @@ h1 {
   margin-bottom: 16px;
 }
 
-/* ===== Контейнер каталога ===== */
+/* ===== Контейнер каталога (MOBILE FIRST) ===== */
 #catalog {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: 1fr; /* 👈 ВСЕ ТЕЛЕФОНЫ */
+  gap: 14px;
 }
 
 /* ===== Карточка товара ===== */
 #catalog > div {
   background: #fff;
   border-radius: 14px;
-  padding: 12px;
+  padding: 14px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.06);
   display: flex;
   flex-direction: column;
@@ -44,25 +44,25 @@ h1 {
 /* ===== Картинка ===== */
 #catalog img {
   width: 100%;
-  height: 140px;
+  height: 220px;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 12px;
   margin-bottom: 8px;
 }
 
 /* ===== Название ===== */
 #catalog h3 {
-  font-size: 14px;
-  margin: 0 0 6px;
+  font-size: 16px;
+  margin: 0 0 8px;
   line-height: 1.3;
 }
 
 /* ===== Цена ===== */
 #catalog .price {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   color: #111;
-  margin: 0 0 10px;
+  margin: 0 0 12px;
 }
 
 /* ===== Поле количества ===== */
@@ -74,20 +74,19 @@ h1 {
 
 .qty-input {
   width: 100%;
-  padding: 10px;
+  padding: 14px;
   margin-top: 4px;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid #ccc;
-  font-size: 14px;
-  box-sizing: border-box;
+  font-size: 16px; /* ❌ нет автозума iOS */
 }
 
 /* ===== Кнопка ===== */
 #catalog button {
   border: none;
-  border-radius: 10px;
-  padding: 12px;
-  font-size: 14px;
+  border-radius: 14px;
+  padding: 16px;
+  font-size: 16px;
   font-weight: 600;
   background: #2a7bf6;
   color: #fff;
@@ -99,15 +98,9 @@ h1 {
 }
 
 /* ========================= */
-/* 📱 АДАПТАЦИЯ ПОД СМАРТФОНЫ */
+/* 📱 Маленькие телефоны */
 /* ========================= */
-
-/* Очень маленькие экраны */
 @media (max-width: 360px) {
-  #catalog {
-    grid-template-columns: 1fr;
-  }
-
   #catalog img {
     height: 180px;
   }
@@ -117,67 +110,20 @@ h1 {
   }
 }
 
-/* Обычные смартфоны */
-@media (min-width: 361px) and (max-width: 768px) {
+/* ========================= */
+/* 📱 Планшеты */
+/* ========================= */
+@media (min-width: 600px) {
   #catalog {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* Большие экраны */
-@media (min-width: 769px) {
+/* ========================= */
+/* 💻 Десктоп */
+/* ========================= */
+@media (min-width: 1024px) {
   #catalog {
     grid-template-columns: repeat(3, 1fr);
-  }
-}
-/* ===================================== */
-/* 📱 iPhone 16 / 16 Pro / 17 / 17 Pro */
-/* ===================================== */
-@media (min-width: 390px) and (max-width: 430px) {
-
-  /* ОДНА карточка в ряд — лучший UX */
-  #catalog {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  /* Карточка — чуть просторнее */
-  #catalog > div {
-    padding: 16px;
-    border-radius: 16px;
-  }
-
-  /* Картинка — крупная, как в нативных app */
-  #catalog img {
-    height: 230px;
-    border-radius: 14px;
-  }
-
-  /* Название товара */
-  #catalog h3 {
-    font-size: 17px;
-    line-height: 1.3;
-    margin-bottom: 8px;
-  }
-
-  /* Цена — акцент */
-  #catalog .price {
-    font-size: 17px;
-    font-weight: 700;
-    margin-bottom: 14px;
-  }
-
-  /* Поле количества — БЕЗ автозума iOS */
-  .qty-input {
-    font-size: 16px;   /* критично */
-    padding: 14px;
-    border-radius: 10px;
-  }
-
-  /* Кнопка — палец + */
-  #catalog button {
-    font-size: 16px;
-    padding: 16px;
-    border-radius: 14px;
   }
 }
