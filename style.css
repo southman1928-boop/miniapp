@@ -130,3 +130,54 @@ h1 {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+/* ===================================== */
+/* 📱 iPhone 16 / 16 Pro / 17 / 17 Pro */
+/* ===================================== */
+@media (min-width: 390px) and (max-width: 430px) {
+
+  /* ОДНА карточка в ряд — лучший UX */
+  #catalog {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* Карточка — чуть просторнее */
+  #catalog > div {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  /* Картинка — крупная, как в нативных app */
+  #catalog img {
+    height: 230px;
+    border-radius: 14px;
+  }
+
+  /* Название товара */
+  #catalog h3 {
+    font-size: 17px;
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+
+  /* Цена — акцент */
+  #catalog .price {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+
+  /* Поле количества — БЕЗ автозума iOS */
+  .qty-input {
+    font-size: 16px;   /* критично */
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  /* Кнопка — палец + */
+  #catalog button {
+    font-size: 16px;
+    padding: 16px;
+    border-radius: 14px;
+  }
+}
