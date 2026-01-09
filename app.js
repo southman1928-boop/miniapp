@@ -38,9 +38,16 @@ function selectProduct(productId, title) {
     '1'
   );
 
-  const qty = parseInt(input, 10);
+  // Пользователь нажал "Отмена"
+  if (input === null) {
+    return;
+  }
 
-  if (!qty || qty < 1) {
+  // Пусто = 1
+  const qty = input.trim() === '' ? 1 : parseInt(input, 10);
+
+  // Некорректный ввод
+  if (isNaN(qty) || qty < 1) {
     tg.showPopup({
       title: 'Ошибка',
       message: 'Введите корректное количество (1 или больше)',
@@ -56,6 +63,7 @@ function selectProduct(productId, title) {
   );
   tg.MainButton.show();
 }
+
 
 /* ===== Popup выбора количества ===== */
 function showQuantityPopup() {
