@@ -28,22 +28,53 @@ fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/pro
     });
   });
 
-/* ===== Выбор товара ===== */
+/* ===== Выбор товара + количества ===== */
 function selectProduct(productId, title) {
   selectedProductId = productId;
   selectedProductTitle = title;
+  selectedQuantity = 1;
 
-  tg.MainButton.setText('Подтвердить бронирование');
-  tg.MainButton.show();
+  updateMainButton();
 
+  showQuantityPopup();
+}
+
+/* ===== Popup выбора количества ===== */
+function showQuantityPopup() {
   tg.showPopup({
-    title: 'Выбран товар',
-    message: title,
-    buttons: [{ type: 'ok' }]
+    title: selectedProductTitle,
+    message: `Количество: ${selectedQuantity}`,
+    buttons: [
+      { id: 'minus', type: 'default', text: '−' },
+      { id: 'plus', type: 'default', text: '+' },
+      { type: 'ok', text: 'Готово' }
+    ]
+  }, (btn) => {
+    if (btn === 'plus') {
+      selectedQuantity++;
+    }
+
+    if (btn === 'minus' && selectedQuantity > 1) {
+      selectedQuantity--;
+    }
+
+    updateMainButton();
+
+    if (btn !== 'ok') {
+      showQuantityPopup();
+    }
   });
 }
 
-/* ===== Отправка бронирования (БЕЗ уведомлений) ===== */
+/* ===== Обновление MainButton ===== */
+function updateMainButton() {
+  tg.MainButton.setText(
+    `Подтвердить бронирование (${selectedQuantity} шт)`
+  );
+  tg.MainButton.show();
+}
+
+/* ===== Отправка бронирования ===== */
 function book(productId) {
   const user = tg.initDataUnsafe.user;
 
@@ -51,6 +82,7 @@ function book(productId) {
   data.append('entry.457040264', productId);        // product_id
   data.append('entry.467357019', user.id);          // user_id
   data.append('entry.1706370580', user.username);   // username
+  data.append('entry.1239404864', selectedQuantity); // quantity ← ЗАМЕНИ entry
 
   fetch('https://docs.google.com/forms/d/e/1FAIpQLSefsUyWJjpJo_sCW775Fb6Ba0tl8fUbB1DyfDIBRp3RVJY9lA/formResponse', {
     method: 'POST',
@@ -60,7 +92,7 @@ function book(productId) {
 
   tg.showPopup({
     title: 'Готово',
-    message: 'Бронь отправлена',
+    message: `Бронь отправлена (${selectedQuantity} шт)`,
     buttons: [{ type: 'ok' }]
   });
 }
@@ -74,5 +106,5 @@ tg.MainButton.onClick(() => {
   tg.MainButton.hide();
   selectedProductId = null;
   selectedProductTitle = '';
+  selectedQuantity = 1;
 });
-
