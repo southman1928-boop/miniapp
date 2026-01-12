@@ -4,7 +4,7 @@ tg.expand();
 
 let selectedProductId = null;
 let selectedProductTitle = '';
-let selectedQuantity = null;
+let selectedQuantity = 1; // 👈 ПО УМОЛЧАНИЮ 1
 
 /* ===== Загрузка каталога ===== */
 fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/products')
@@ -20,7 +20,7 @@ fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/pro
       const item = document.createElement('div');
       item.innerHTML = `
         <h3>${p.title}</h3>
-        <img src="${p.image_url}" width="200">
+        <img src="${p.image_url}" alt="${p.title}">
 
         <p class="price">
           ${hasPrice ? p.price + ' ₽' : 'Цена по запросу'}
@@ -34,7 +34,7 @@ fetch('https://opensheet.elk.sh/1_3n83ymNabp9c0BwdGeHLSiVMfa1t8GKxw7qxDSNCvY/pro
           <input
             type="number"
             min="1"
-            placeholder="Введите количество"
+            placeholder="1"
             class="qty-input"
             oninput="updateQuantity(this, ${p.id}, '${p.title}')"
           >
@@ -58,8 +58,9 @@ function updateQuantity(input, productId, title) {
   selectedProductId = productId;
   selectedProductTitle = title;
 
+  // если поле очищено — считаем 1, но кнопку пока не показываем
   if (value === '') {
-    selectedQuantity = null;
+    selectedQuantity = 1;
     tg.MainButton.hide();
     return;
   }
@@ -67,7 +68,7 @@ function updateQuantity(input, productId, title) {
   const qty = parseInt(value, 10);
 
   if (isNaN(qty) || qty < 1) {
-    selectedQuantity = null;
+    selectedQuantity = 1;
     tg.MainButton.hide();
     return;
   }
@@ -85,13 +86,9 @@ function selectProduct(productId, title) {
   selectedProductId = productId;
   selectedProductTitle = title;
 
-  if (!selectedQuantity) {
-    tg.showPopup({
-      title: 'Введите количество',
-      message: 'Пожалуйста, укажите количество товара',
-      buttons: [{ type: 'ok' }]
-    });
-    return;
+  // если пользователь не вводил количество — используем 1
+  if (!selectedQuantity || selectedQuantity < 1) {
+    selectedQuantity = 1;
   }
 
   tg.MainButton.setText(
@@ -107,14 +104,17 @@ function book(productId) {
   const data = new URLSearchParams();
   data.append('entry.457040264', productId);
   data.append('entry.467357019', user.id);
-  data.append('entry.1706370580', user.username);
+  data.append('entry.1706370580', user.username || '');
   data.append('entry.1239404864', selectedQuantity);
 
-  fetch('https://docs.google.com/forms/d/e/1FAIpQLSefsUyWJjpJo_sCW775Fb6Ba0tl8fUbB1DyfDIBRp3RVJY9lA/formResponse', {
-    method: 'POST',
-    mode: 'no-cors',
-    body: data
-  });
+  fetch(
+    'https://docs.google.com/forms/d/e/1FAIpQLSefsUyWJjpJo_sCW775Fb6Ba0tl8fUbB1DyfDIBRp3RVJY9lA/formResponse',
+    {
+      method: 'POST',
+      mode: 'no-cors',
+      body: data
+    }
+  );
 
   tg.showPopup({
     title: 'Готово',
@@ -125,12 +125,16 @@ function book(productId) {
 
 /* ===== MainButton ===== */
 tg.MainButton.onClick(() => {
-  if (!selectedProductId || !selectedQuantity) return;
+  if (!selectedProductId) return;
+
+  if (!selectedQuantity || selectedQuantity < 1) {
+    selectedQuantity = 1;
+  }
 
   book(selectedProductId);
 
   tg.MainButton.hide();
   selectedProductId = null;
   selectedProductTitle = '';
-  selectedQuantity = null;
+  selectedQuantity = 1;
 });
